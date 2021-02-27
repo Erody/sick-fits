@@ -2,6 +2,7 @@ import { useMutation } from '@apollo/client';
 import gql from 'graphql-tag';
 import PropTypes from 'prop-types';
 import { useState } from 'react';
+import Router from 'next/router';
 import useForm from '../lib/useForm';
 import Form from './styles/Form';
 import DisplayError from './ErrorMessage';
@@ -51,6 +52,10 @@ function CreateProduct(props) {
                 e.preventDefault();
                 const res = await createProduct();
                 clearForm();
+                // go to that product's page
+                Router.push({
+                    pathname: `/product/${res.data.createProduct.id}`,
+                });
             }}
         >
             <DisplayError error={error} />
