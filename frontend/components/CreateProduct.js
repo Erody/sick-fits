@@ -33,7 +33,7 @@ const CREATE_PRODUCT_MUTATION = gql`
     }
 `;
 
-function CreateProduct(props) {
+function CreateProduct() {
     const { inputs, handleChange, clearForm, resetForm } = useForm({
         name: 'Shoes',
         price: 2323,
