@@ -4,6 +4,7 @@ import ItemStyles from './styles/ItemStyles';
 import Title from './styles/Title';
 import PriceTag from './styles/PriceTag';
 import formatMoney from '../lib/formatMoney';
+import DeleteProduct from './DeleteProduct';
 
 function Product({ product }) {
     return (
@@ -28,6 +29,7 @@ function Product({ product }) {
                 >
                     Edit ✏
                 </Link>
+                <DeleteProduct id={product.id}>Delete</DeleteProduct>
             </div>
         </ItemStyles>
     );
