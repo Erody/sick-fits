@@ -2,7 +2,6 @@ import gql from 'graphql-tag';
 import { useMutation } from '@apollo/client';
 import Form from './styles/Form';
 import useForm from '../lib/useForm';
-import { CURRENT_USER_QUERY } from './User';
 import DisplayError from './ErrorMessage';
 
 const SIGNUP_MUTATION = gql`
@@ -37,7 +36,7 @@ export default function SignUp() {
 
     return (
         <Form method="POST" onSubmit={handleSubmit}>
-            <h2>Sing up for a new account</h2>
+            <h2>Sign up for a new account</h2>
             <DisplayError error={error} />
             <fieldset>
                 {data?.createUser && (

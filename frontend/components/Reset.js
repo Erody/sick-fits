@@ -1,53 +1,58 @@
 import gql from 'graphql-tag';
 import { useMutation } from '@apollo/client';
+import PropTypes from 'prop-types';
+
 import Form from './styles/Form';
 import useForm from '../lib/useForm';
-import { CURRENT_USER_QUERY } from './User';
 import DisplayError from './ErrorMessage';
 
-const SIGNIN_MUTATION = gql`
-    mutation SIGNIN_MUTATION($email: String!, $password: String!) {
-        authenticateUserWithPassword(email: $email, password: $password) {
-            ... on UserAuthenticationWithPasswordSuccess {
-                item {
-                    id
-                    email
-                    name
-                }
-            }
-            ... on UserAuthenticationWithPasswordFailure {
-                code
-                message
-            }
+const PASSWORD_RESET_MUTATION = gql`
+    mutation PASSWORD_RESET_MUTATION(
+        $email: String!
+        $token: String!
+        $password: String!
+    ) {
+        redeemUserPasswordResetToken(
+            email: $email
+            token: $token
+            password: $password
+        ) {
+            code
+            message
         }
     }
 `;
 
-export default function SignIn() {
+function Reset({ token }) {
     const { inputs, handleChange, resetForm } = useForm({
         email: '',
         password: '',
     });
-    const [signin, { data, loading }] = useMutation(SIGNIN_MUTATION, {
-        variables: inputs,
-        refetchQueries: [{ query: CURRENT_USER_QUERY }],
-    });
-    const error =
-        data?.authenticateUserWithPassword.__typename ===
-        'UserAuthenticationWithPasswordFailure'
-            ? data?.authenticateUserWithPassword
-            : undefined;
+    const [resetPassword, { data, loading, error }] = useMutation(
+        PASSWORD_RESET_MUTATION,
+        {
+            variables: { ...inputs, token },
+        }
+    );
     async function handleSubmit(e) {
         e.preventDefault();
-        await signin();
+        const res = await resetPassword().catch(console.error);
         resetForm();
+        console.log(res);
     }
+    const successfulError = data?.redeemUserPasswordResetToken?.code
+        ? data?.redeemUserPasswordResetToken
+        : undefined;
     if (loading) return <p>Loading...</p>;
+
     return (
         <Form method="POST" onSubmit={handleSubmit}>
-            <h2>Sign into your account</h2>
-            <DisplayError error={error} />
+            <h2>Reset your password</h2>
+            <DisplayError error={error || successfulError} />
             <fieldset>
+                {data?.redeemUserPasswordResetToken === null && (
+                    <p>Success! You can now sign in!</p>
+                )}
                 <label htmlFor="email">
                     Email
                     <input
@@ -70,8 +75,14 @@ export default function SignIn() {
                         onChange={handleChange}
                     />
                 </label>
-                <button type="submit">Sign In</button>
+                <button type="submit">Request reset</button>
             </fieldset>
         </Form>
     );
 }
+
+Reset.propTypes = {
+    token: PropTypes.string,
+};
+
+export default Reset;
