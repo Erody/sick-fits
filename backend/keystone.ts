@@ -9,6 +9,7 @@ import { User } from './schemas/User';
 import { Product } from './schemas/Product';
 import { ProductImage } from './schemas/ProductImage';
 import { insertSeedData } from './seed-data';
+import { sendPasswordResetEmail } from './lib/mail';
 
 const databaseUrl =
     process.env.DATABASE_URL || 'mongodb://localhost/keystone-sick-fits';
@@ -27,8 +28,9 @@ const { withAuth } = createAuth({
         // TODO: Add in initial roles here
     },
     passwordResetLink: {
-        async sendToken(args) {
-            console.log(args);
+        async sendToken({ token, identity, itemId }) {
+            // send the email
+            await sendPasswordResetEmail(token, identity);
         },
     },
 });
