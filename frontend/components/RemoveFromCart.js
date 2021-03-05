@@ -21,10 +21,14 @@ const BigButton = styled.button`
     }
 `;
 
+function update(cache, payload) {
+    cache.evict(cache.identify(payload.data.deleteCartItem));
+}
+
 function RemoveFromCart({ id }) {
     const [removeFromCart, { loading }] = useMutation(
         REMOVE_FROM_CART_MUTATION,
-        { variables: { id } }
+        { variables: { id }, update }
     );
     return (
         <BigButton
