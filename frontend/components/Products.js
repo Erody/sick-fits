@@ -40,7 +40,7 @@ function Products({ page }) {
     return (
         <>
             <ProductsListStyles>
-                {data.allProducts.map((product) => (
+                {data?.allProducts.map((product) => (
                     <Product product={product} key={product.id} />
                 ))}
             </ProductsListStyles>
