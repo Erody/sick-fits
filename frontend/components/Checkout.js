@@ -78,7 +78,7 @@ function CheckoutForm() {
         console.log(order);
         // change the page to review the order
         router.push({
-            pathname: '/order',
+            pathname: '/order/[id]',
             query: { id: order.data.checkout.id },
         });
         // close the cart
