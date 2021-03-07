@@ -39,6 +39,9 @@ const OrderItemStyles = styled.li`
             margin-bottom: 1rem;
         }
     }
+    :hover {
+        cursor: pointer;
+    }
 `;
 
 export default OrderItemStyles;

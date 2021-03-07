@@ -1,7 +1,108 @@
-export default function OrderPage() {
+import { useQuery } from '@apollo/client';
+import gql from 'graphql-tag';
+import PropTypes from 'prop-types';
+import Head from 'next/head';
+import styled from 'styled-components';
+import Link from 'next/link';
+import formatMoney from '../lib/formatMoney';
+import DisplayError from '../components/ErrorMessage';
+import OrderStyles from '../components/styles/OrderStyles';
+import OrderItemStyles from '../components/styles/OrderItemStyles';
+
+const USER_ORDERS_QUERY = gql`
+    query USER_ORDERS_QUERY {
+        allOrders {
+            charge
+            total
+            id
+            user {
+                id
+            }
+            items {
+                quantity
+                id
+                description
+                name
+                price
+                photo {
+                    image {
+                        publicUrlTransformed
+                    }
+                }
+            }
+        }
+    }
+`;
+
+const OrderUl = styled.ul`
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    grid-gap: 4rem;
+`;
+
+function countOrderItems(order) {
+    return order.items.reduce((tally, item) => tally + item.quantity, 0);
+}
+
+function pluralizeConditionally(count, word) {
+    if (count === 1) {
+        return `${count} ${word}`;
+    }
+    return `${count} ${word}s`;
+}
+
+function OrdersPage() {
+    const { data, error, loading } = useQuery(USER_ORDERS_QUERY);
+    if (loading) return <p>Loading...</p>;
+    if (error) return <DisplayError />;
+    const { allOrders } = data;
     return (
         <div>
-            <p>Orders</p>
+            <Head>
+                <title>Your Orders ({allOrders.length})</title>
+            </Head>
+            <h2>You have {allOrders.length} orders!</h2>
+            <OrderUl>
+                {allOrders.map((order) => (
+                    <OrderItemStyles>
+                        <Link href={`/order/${order.id}`}>
+                            <a>
+                                <div className="order-meta">
+                                    <p>
+                                        {pluralizeConditionally(
+                                            countOrderItems(order),
+                                            'Item'
+                                        )}
+                                    </p>
+                                    <p>
+                                        {pluralizeConditionally(
+                                            order.items.length,
+                                            'Product'
+                                        )}
+                                    </p>
+                                    <p>{formatMoney(order.total)}</p>
+                                </div>
+                                <div className="images">
+                                    {order.items.map((item) => (
+                                        <img
+                                            key={item.id}
+                                            src={
+                                                item.photo?.image
+                                                    ?.publicUrlTransformed
+                                            }
+                                            alt={item.name}
+                                        />
+                                    ))}
+                                </div>
+                            </a>
+                        </Link>
+                    </OrderItemStyles>
+                ))}
+            </OrderUl>
         </div>
     );
 }
+
+OrdersPage.propTypes = {};
+
+export default OrdersPage;
