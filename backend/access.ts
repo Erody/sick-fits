@@ -1,3 +1,4 @@
+import { permissionsList } from './schemas/fields';
 import { ListAccessArgs } from './types';
 
 export function isSignedIn({ session }: ListAccessArgs) {
@@ -5,7 +6,7 @@ export function isSignedIn({ session }: ListAccessArgs) {
 }
 
 const generatedPermissions = Object.fromEntries(
-    permissionsList.map((permissions) => [
+    permissionsList.map((permission) => [
         permission,
         function ({ session }: ListAccessArgs) {
             return !!session?.data.role?.[permission];
@@ -15,4 +16,22 @@ const generatedPermissions = Object.fromEntries(
 
 export const permissions = {
     ...generatedPermissions,
+};
+
+export const rules = {
+    canManageProducts({ session }: ListAccessArgs) {
+        // do they have the permission of canManageProducts
+        if (permissions.canManageProducts({ session })) {
+            return true;
+        }
+        // do they own the product
+        return { user: { id: session.itemId } };
+    },
+    canReadProducts({ session }: ListAccessArgs) {
+        if (permissions.canManageProducts({ session })) {
+            return true;
+        }
+        // they should only see products with the status available
+        return { status: 'AVAILABLE' };
+    },
 };
